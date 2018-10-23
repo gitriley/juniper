@@ -28,26 +28,37 @@ console.log('running rileys extensions');
         return allMediaSources;
     }
     
-    const createFilters = (source, audioCtx) => {
+    const createFilter = (source, audioCtx) => {
         console.log('createFilter');
         //mediaElement.crossOrigin="anonymous";
         //let source = audioCtx.createMediaElementSource(mediaElement);
         //mediaSources.push(source);
         console.log(source);
-        biquadFilter = audioCtx.createBiquadFilter();
+        lowPassFilter = audioCtx.createBiquadFilter();
+        highPassFilter = audioCtx.createBiquadFilter();
     
-        source.connect(biquadFilter);
+        source.connect(lowPassFilter);
+        lowPassFilter.connect(highPassFilter);
     
-        biquadFilter.type = "lowpass";
+        lowPassFilter.type = "lowpass";
+        highPassFilter.type = "highpass";
     
-        biquadFilter.connect(audioCtx.destination);
+        highPassFilter.connect(audioCtx.destination);
+        //lowPassFilter.connect(audioCtx.destination);
     }
     
-    const updateFilters = () => {
+    const updateLowPassFilter = () => {
         console.log('updateFilter');
-        biquadFilter.type = "lowpass";
-        biquadFilter.frequency.value = 700;
-        biquadFilter.Q.value = 1;
+        lowPassFilter.type = "lowpass";
+        lowPassFilter.frequency.value = 700;
+        lowPassFilter.Q.value = 1;
+    }
+
+    const updateHighPassFilter = () => {
+        console.log('updateFilter');
+        highPassFilter.type = "highpass";
+        highPassFilter.frequency.value = 300;
+        highPassFilter.Q.value = 1;
     }
 
     console.log('this function runs');
@@ -70,7 +81,9 @@ console.log('running rileys extensions');
     }
 
     let audioCtx = undefined;
-    let biquadFilter = null;
+    //let biquadFilter = null;
+    let lowPassFilter = null;
+    let highPassFilter = null;
     let mediaSources = undefined;
 
     //let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -100,28 +113,24 @@ console.log('running rileys extensions');
 
         
         mediaSources.forEach((mediaElement) => {
-            console.log(mediaElement);
-            console.log('biquad filter', biquadFilter);
-            if (!biquadFilter) {
-                createFilters(mediaElement, audioCtx);
+            if (!lowPassFilter) {
+                createFilter(mediaElement, audioCtx);
             }
-            updateFilters();
-            console.log('biquad filter after update', biquadFilter.frequency.value);
+            updateLowPassFilter();
+            updateHighPassFilter();
         });
     } 
 
     function deactivate() {
         console.log('deactivate');
-        console.log('biquadFilter before disconnect', biquadFilter);
         //biquadFilter.disconnect();
-        biquadFilter.frequency.value = 20000;
-        console.log('biquadFilter after disconnect', biquadFilter);
-        console.log('mediaSources: ', mediaSources);
+        lowPassFilter.frequency.value = 20000;
+        highPassFilter.frequency.value = 0;
+        
         // mediaSources.forEach((source) => {
         //     source.connect(audioCtx.destination)
         // });
         // biquadFilter = null;
-        console.log('biquadFilter after reconnecting and nulling');
     }
 
     browser.runtime.onMessage.addListener((message) => {
