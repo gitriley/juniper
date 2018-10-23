@@ -28,7 +28,7 @@ function updateLowPass(event) {
         .then(function(tabs) {
             browser.tabs.sendMessage(tabs[0].id, {
                 command: "updateLowPass",
-                value: event.target.value
+                value: getLogValue(event.target.value)
             });
         })   
         .catch((error) => {
@@ -41,13 +41,28 @@ function updateHighPass(event) {
         .then(function(tabs) {
             browser.tabs.sendMessage(tabs[0].id, {
                 command: "updateHighPass",
-                value: event.target.value
+                value: getLogValue(event.target.value)
             });
         })   
         .catch((error) => {
             console.log('error', error)
         });
 }
+
+function getLogValue(position) {
+    // position will be between 0 and 100
+    var minp = 0;
+    var maxp = 100;
+  
+    // The result should be between 100 an 10000000
+    var minv = Math.log(2);
+    var maxv = Math.log(20000);
+  
+    // calculate adjustment factor
+    var scale = (maxv-minv) / (maxp-minp);
+  
+    return Math.exp(minv + scale*(position-minp));
+  }
 
 function addListeners() {
     console.log('adding listeners');

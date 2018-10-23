@@ -48,12 +48,16 @@ console.log('running rileys extensions');
     }
     
     const updateLowPassFilter = (frequency) => {
+        console.log('lowpass freq: ', frequency);
+        console.log('highpass freq: ', highPassFilter.frequency.value);
         lowPassFilter.type = "lowpass";
         lowPassFilter.frequency.value = frequency;
         lowPassFilter.Q.value = 1;
     }
 
     const updateHighPassFilter = (frequency) => {
+        console.log('lowpass freq: ', lowPassFilter.frequency.value);
+        console.log('highpass freq: ', frequency);
         highPassFilter.type = "highpass";
         highPassFilter.frequency.value = frequency;
         highPassFilter.Q.value = 1;
