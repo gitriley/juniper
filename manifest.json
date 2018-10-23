@@ -1,0 +1,19 @@
+{
+
+    "manifest_version": 2,
+    "name": "AudioEQ",
+    "version": "1.0",
+  
+    "description": "Audio EQ for youtube",
+
+    "browser_action": {
+      "default_icon": "icon.png",
+      "default_title": "Hi-Low EQ",
+      "default_popup": "control_panel.html"
+    },
+    "permissions": [
+      "<all_urls>",
+      "activeTab"
+   ]
+  }
+
