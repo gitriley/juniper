@@ -47,17 +47,15 @@ console.log('running rileys extensions');
         //lowPassFilter.connect(audioCtx.destination);
     }
     
-    const updateLowPassFilter = () => {
-        console.log('updateFilter');
+    const updateLowPassFilter = (frequency) => {
         lowPassFilter.type = "lowpass";
-        lowPassFilter.frequency.value = 700;
+        lowPassFilter.frequency.value = frequency;
         lowPassFilter.Q.value = 1;
     }
 
-    const updateHighPassFilter = () => {
-        console.log('updateFilter');
+    const updateHighPassFilter = (frequency) => {
         highPassFilter.type = "highpass";
-        highPassFilter.frequency.value = 300;
+        highPassFilter.frequency.value = frequency;
         highPassFilter.Q.value = 1;
     }
 
@@ -116,8 +114,8 @@ console.log('running rileys extensions');
             if (!lowPassFilter) {
                 createFilter(mediaElement, audioCtx);
             }
-            updateLowPassFilter();
-            updateHighPassFilter();
+            updateLowPassFilter(20000);
+            updateHighPassFilter(0);
         });
     } 
 
@@ -135,10 +133,16 @@ console.log('running rileys extensions');
 
     browser.runtime.onMessage.addListener((message) => {
         console.log('receiving message');
-        if (message.command === "activate") {
+        if (message.command === 'activate') {
             activate();
-        } else if (message.command === "deactivate") {
+        } else if (message.command === 'deactivate') {
             deactivate();
+        } else if (message.command === 'updateHighPass') {
+            console.log('update highpass')
+            updateHighPassFilter(message.value);
+        } else if (message.command === 'updateLowPass') {
+            console.log('update lowpass')
+            updateLowPassFilter(message.value);
         }
       });
 
