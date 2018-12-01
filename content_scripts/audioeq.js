@@ -126,6 +126,9 @@ console.log('running rileys extensions');
     function deactivate() {
         console.log('deactivate');
         //biquadFilter.disconnect();
+        if (!lowPassFilter) {
+            return
+        }
         lowPassFilter.frequency.value = 20000;
         highPassFilter.frequency.value = 0;
         
@@ -149,7 +152,6 @@ console.log('running rileys extensions');
             updateLowPassFilter(message.value);
         }
       });
-
 })();
 
 

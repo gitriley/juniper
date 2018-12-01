@@ -12,6 +12,7 @@
       "default_popup": "control_panel.html"
     },
     "permissions": [
+      "storage",
       "<all_urls>",
       "activeTab"
    ]

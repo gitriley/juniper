@@ -1,8 +1,11 @@
 console.log('starting');
+let appState = 'unitialized';
+console.log('appState: ', appState);
 
 function toggleFilter(event) {
     console.log('toggling on off', event.target.checked);
     if (event.target.checked) {
+        browser.storage.local.set({'onOff': true})
         browser.tabs.query({active: true, currentWindow: true})
             .then(function(tabs) {
                 console.log('sending message to tab: ', tabs[0]);
@@ -12,6 +15,7 @@ function toggleFilter(event) {
                 console.log('error', error)
             });
     } else {
+        browser.storage.local.set({'onOff': false})
         browser.tabs.query({active: true, currentWindow: true})
             .then(function(tabs) {
                 console.log('sending message to tab: ', tabs[0]);
@@ -64,12 +68,17 @@ function getLogValue(position) {
     return Math.exp(minv + scale*(position-minp));
   }
 
-function addListeners() {
+async function addListeners () {
+    await browser.storage.local.set({'sartingApp': 'true'})
     console.log('adding listeners');
+    console.log
     const onOff = document.getElementById('onoff');
     const lowpass = document.getElementById('lowpass');
     const highpass = document.getElementById('highpass');
-
+    const onOffState = await browser.storage.local.get('onOff')
+    onOff.checked = onOffState.onOff
+    console.log(onOffState.onOff)
+    console.log(await browser.storage.local.get())
     onOff.addEventListener('change', toggleFilter, false);
     lowpass.addEventListener('change', updateLowPass, false);
     highpass.addEventListener('change', updateHighPass, false);
@@ -86,6 +95,6 @@ function reportExecuteScriptError(error) {
 */
 addListeners();
 browser.tabs.executeScript({file: "/content_scripts/audioeq.js"})
-.then(addListeners)
+//.then(addListeners)
 .catch(reportExecuteScriptError);
   
