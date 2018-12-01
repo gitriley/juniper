@@ -28,6 +28,7 @@ function toggleFilter(event) {
 }
 
 function updateLowPass(event) {
+    browser.storage.local.set({'lowPassVal': event.target.value})
     browser.tabs.query({active: true, currentWindow: true})
         .then(function(tabs) {
             browser.tabs.sendMessage(tabs[0].id, {
@@ -41,6 +42,7 @@ function updateLowPass(event) {
 }
 
 function updateHighPass(event) {
+    browser.storage.local.set({'highPassVal': event.target.value})
     browser.tabs.query({active: true, currentWindow: true})
         .then(function(tabs) {
             browser.tabs.sendMessage(tabs[0].id, {
@@ -75,9 +77,11 @@ async function addListeners () {
     const onOff = document.getElementById('onoff');
     const lowpass = document.getElementById('lowpass');
     const highpass = document.getElementById('highpass');
-    const onOffState = await browser.storage.local.get('onOff')
-    onOff.checked = onOffState.onOff
-    console.log(onOffState.onOff)
+    const state = await browser.storage.local.get()
+    onOff.checked = state.onOff
+    lowpass.value = state.lowPassVal
+    highpass.value = state.highPassVal
+    console.log(state)
     console.log(await browser.storage.local.get())
     onOff.addEventListener('change', toggleFilter, false);
     lowpass.addEventListener('change', updateLowPass, false);

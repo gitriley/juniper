@@ -126,7 +126,7 @@ console.log('running rileys extensions');
     function deactivate() {
         console.log('deactivate');
         //biquadFilter.disconnect();
-        if (!lowPassFilter) {
+        if (!lowPassFilter || !highPassFilter) {
             return
         }
         lowPassFilter.frequency.value = 20000;
