@@ -2,14 +2,21 @@ console.log('starting');
 let appState = 'unitialized';
 console.log('appState: ', appState);
 
-function toggleFilter(event) {
+async function toggleFilter(event) {
     console.log('toggling on off', event.target.checked);
+    const state = await browser.storage.local.get()
+    console.log()
+    console.log(typeof state.lowPassVal)
     if (event.target.checked) {
         browser.storage.local.set({'onOff': true})
         browser.tabs.query({active: true, currentWindow: true})
             .then(function(tabs) {
                 console.log('sending message to tab: ', tabs[0]);
-                browser.tabs.sendMessage(tabs[0].id, {command: "activate"})
+                browser.tabs.sendMessage(tabs[0].id, {
+                    command: "activate",
+                    lowPassVal: getLogValue(state.lowPassVal),
+                    highPassVal: getLogValue(state.highPassVal)
+                })
             })   
             .catch((error) => {
                 console.log('error', error)
@@ -66,8 +73,7 @@ function getLogValue(position) {
   
     // calculate adjustment factor
     var scale = (maxv-minv) / (maxp-minp);
-  
-    return Math.exp(minv + scale*(position-minp));
+    return Math.round(Math.exp(minv + scale*(position-minp)));
   }
 
 async function addListeners () {

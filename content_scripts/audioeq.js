@@ -92,8 +92,8 @@ console.log('running rileys extensions');
     console.log('initializing biquad');
     
 
-    function activate() {
-        console.log('activate');
+    function activate(message) {
+        console.log('activate', message);
         console.log(mediaSources);
         //
         //biquadFilter = null;
@@ -118,8 +118,9 @@ console.log('running rileys extensions');
             if (!lowPassFilter) {
                 createFilter(mediaElement, audioCtx);
             }
-            updateLowPassFilter(20000);
-            updateHighPassFilter(0);
+            console.log('REACTIVIATING: ', message.lowPassVal, message.highPassVal)
+            updateLowPassFilter(message.lowPassVal);
+            updateHighPassFilter(message.highPassVal);
         });
     } 
 
@@ -141,7 +142,7 @@ console.log('running rileys extensions');
     browser.runtime.onMessage.addListener((message) => {
         console.log('receiving message');
         if (message.command === 'activate') {
-            activate();
+            activate(message);
         } else if (message.command === 'deactivate') {
             deactivate();
         } else if (message.command === 'updateHighPass') {
