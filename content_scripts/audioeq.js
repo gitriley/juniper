@@ -24,7 +24,7 @@ console.log('running rileys extensions');
             mediaElement.crossOrigin="anonymous";
             return audioCtx.createMediaElementSource(mediaElement);
         });
-    
+        console.log(allMediaSources)
         return allMediaSources;
     }
     

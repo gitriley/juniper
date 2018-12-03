@@ -34,8 +34,13 @@ async function toggleFilter(event) {
     }
 }
 
-function updateLowPass(event) {
+async function updateLowPass(event) {
     browser.storage.local.set({'lowPassVal': event.target.value})
+    const state = await browser.storage.local.get()
+    if (!state.onOff) {
+        return
+    }
+    
     browser.tabs.query({active: true, currentWindow: true})
         .then(function(tabs) {
             browser.tabs.sendMessage(tabs[0].id, {
@@ -48,10 +53,17 @@ function updateLowPass(event) {
         });
 }
 
-function updateHighPass(event) {
+async function updateHighPass(event) {
     browser.storage.local.set({'highPassVal': event.target.value})
+    const state = await browser.storage.local.get()
+    if (!state.onOff) {
+        return
+    }
+    
     browser.tabs.query({active: true, currentWindow: true})
         .then(function(tabs) {
+            console.log(tabs)
+            console.log(tabs[0].id)
             browser.tabs.sendMessage(tabs[0].id, {
                 command: "updateHighPass",
                 value: getLogValue(event.target.value)
@@ -79,7 +91,6 @@ function getLogValue(position) {
 async function addListeners () {
     await browser.storage.local.set({'sartingApp': 'true'})
     console.log('adding listeners');
-    console.log
     const onOff = document.getElementById('onoff');
     const lowpass = document.getElementById('lowpass');
     const highpass = document.getElementById('highpass');
