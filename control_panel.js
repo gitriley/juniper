@@ -5,8 +5,6 @@ console.log('appState: ', appState);
 async function toggleFilter(event) {
     console.log('toggling on off', event.target.checked);
     const state = await browser.storage.local.get()
-    console.log()
-    console.log(typeof state.lowPassVal)
     if (event.target.checked) {
         browser.storage.local.set({'onOff': true})
         browser.tabs.query({active: true, currentWindow: true})
@@ -114,6 +112,33 @@ function reportExecuteScriptError(error) {
    * and add a click handler.
    * If we couldn't inject the script, handle the error.
 */
+async function addCurrentTabToStore () {
+    let LocalStorage = await browser.storage.local.get()
+    console.log(LocalStorage)
+    browser.tabs.query({active: true, currentWindow: true})
+        .then(function(tabs) {
+            let tabId = tabs[0].id
+            if (LocalStorage[tabId] !== null) {
+                return
+            } else {
+                browser.storage.local.set({[tabId]: LocalStorage.onOff}).then(function() {
+                    browser.storage.local.get().then(function(state) {
+                        console.log(state)
+                    })
+                })
+            }
+        })   
+        .catch((error) => {
+            console.log('error', error)
+        });
+}
+
+// async function getLocalStorage () {
+//      return await browser.storage.local.get()
+// }
+// let LocalStorage = getLocalStorage()
+
+addCurrentTabToStore()
 addListeners();
 browser.tabs.executeScript({file: "/content_scripts/audioeq.js"})
 //.then(addListeners)
