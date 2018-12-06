@@ -5,30 +5,38 @@ console.log('appState: ', appState);
 async function toggleFilter(event) {
     console.log('toggling on off', event.target.checked);
     const state = await browser.storage.local.get()
+    let tabIds = Object.entries(state.activeTabs).map(([key, value]) => {
+        return parseInt(key)
+    })
     if (event.target.checked) {
         browser.storage.local.set({'onOff': true})
-        browser.tabs.query({active: true, currentWindow: true})
-            .then(function(tabs) {
-                console.log('sending message to tab: ', tabs[0]);
-                browser.tabs.sendMessage(tabs[0].id, {
-                    command: "activate",
-                    lowPassVal: getLogValue(state.lowPassVal),
-                    highPassVal: getLogValue(state.highPassVal)
-                })
-            })   
+
+        tabIds.forEach((id) => {
+            console.log('sending message to activate tab: ', id);
+            browser.tabs.sendMessage(id, {
+                command: "activate",
+                lowPassVal: getLogValue(state.lowPassVal),
+                highPassVal: getLogValue(state.highPassVal)
+            })
             .catch((error) => {
                 console.log('error', error)
-            });
+            }) 
+        })       
     } else {
         browser.storage.local.set({'onOff': false})
-        browser.tabs.query({active: true, currentWindow: true})
-            .then(function(tabs) {
-                console.log('sending message to tab: ', tabs[0]);
-                browser.tabs.sendMessage(tabs[0].id, {command: "deactivate"})
-            })   
+        tabIds.forEach((id) => {
+            console.log('sending message to deactivate tab: ', id);
+            browser.tabs.sendMessage(id, {
+                command: "deactivate",
+                lowPassVal: getLogValue(state.lowPassVal),
+                highPassVal: getLogValue(state.highPassVal)
+            })
             .catch((error) => {
+                console.log('tabid', id)
                 console.log('error', error)
-            });
+                
+            }) 
+        })
     }
 }
 
@@ -155,9 +163,11 @@ browser.storage.local.get().then((state) => {
     //let LocalStorage = state
     addCurrentTabToStore(state)
     addListeners();
+    Object.entries(state.activeTabs).map(([key, value]) => {
+        return parseInt(key)
+    }).forEach((id) => {
+        browser.tabs.executeScript(id, {file: "/content_scripts/audioeq.js"})
+    })
 })
-
-browser.tabs.executeScript({file: "/content_scripts/audioeq.js"})
-//.then(addListeners)
 .catch(reportExecuteScriptError);
   
