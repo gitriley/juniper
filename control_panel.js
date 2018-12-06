@@ -112,16 +112,31 @@ function reportExecuteScriptError(error) {
    * and add a click handler.
    * If we couldn't inject the script, handle the error.
 */
-async function addCurrentTabToStore () {
-    let LocalStorage = await browser.storage.local.get()
+function addCurrentTabToStore (LocalStorage) {
+    //let LocalStorage = await browser.storage.local.get()
     console.log(LocalStorage)
     browser.tabs.query({active: true, currentWindow: true})
         .then(function(tabs) {
             let tabId = tabs[0].id
-            if (LocalStorage[tabId] !== null) {
+            // favIconUrl, title, url, tabId
+            if (!LocalStorage.activeTabs) {
+                console.log('create new active tabs obj')
+                LocalStorage.activeTabs = {}
+            }
+                  
+            if (LocalStorage.activeTabs[tabId] !== undefined) { // if tab is already stored
+                console.log(LocalStorage.activeTabs[tabId], 'tab already stored')
                 return
-            } else {
-                browser.storage.local.set({[tabId]: LocalStorage.onOff}).then(function() {
+            } else { // else if tab hasn't been stored yet
+                console.log('adding tab now')
+                const newTab = {
+                    id: tabs[0].id,
+                    icon: tabs[0].favIconUrl,
+                    title: tabs[0].title,
+                    url: tabs[0].url
+                }
+                const newTabsObj = Object.assign({[tabs[0].id]: newTab}, LocalStorage.activeTabs);
+                browser.storage.local.set({activeTabs: newTabsObj}).then(function() {
                     browser.storage.local.get().then(function(state) {
                         console.log(state)
                     })
@@ -136,10 +151,12 @@ async function addCurrentTabToStore () {
 // async function getLocalStorage () {
 //      return await browser.storage.local.get()
 // }
-// let LocalStorage = getLocalStorage()
+browser.storage.local.get().then((state) => {
+    //let LocalStorage = state
+    addCurrentTabToStore(state)
+    addListeners();
+})
 
-addCurrentTabToStore()
-addListeners();
 browser.tabs.executeScript({file: "/content_scripts/audioeq.js"})
 //.then(addListeners)
 .catch(reportExecuteScriptError);
